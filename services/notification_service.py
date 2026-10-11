@@ -34,7 +34,7 @@ class NotificationService:
 
         customer = await UserRepository.get_user_by_telegram_id(order.user_id)
         cust_name = customer.first_name if customer and customer.first_name else "N/A"
-        cust_username = f"@{customer.username}" if customer and customer.username else "No @"
+        cust_username = f"`@{customer.username}`" if customer and customer.username else "No @"
 
         msg = (
             f"🔔 **New Payment Submission Received!**\n\n"
@@ -74,8 +74,25 @@ class NotificationService:
                         reply_markup=kb,
                         parse_mode="Markdown"
                     )
-            except Exception as e:
-                logger.warning(f"Failed to notify admin {admin_id}: {e}")
+            except Exception:
+                try:
+                    if payment.screenshot_file_id:
+                        await bot.send_photo(
+                            chat_id=admin_id,
+                            photo=payment.screenshot_file_id,
+                            caption=msg,
+                            reply_markup=kb,
+                            parse_mode=None
+                        )
+                    else:
+                        await bot.send_message(
+                            chat_id=admin_id,
+                            text=msg,
+                            reply_markup=kb,
+                            parse_mode=None
+                        )
+                except Exception as e:
+                    logger.warning(f"Failed to notify admin {admin_id}: {e}")
 
     @staticmethod
     async def notify_user_order_approved(bot: Bot, order: Order):

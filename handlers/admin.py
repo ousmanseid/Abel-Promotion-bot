@@ -401,7 +401,16 @@ async def show_admin_order_detail(callback: types.CallbackQuery):
         text += f"• **Reviewed By Admin:** `{order.approved_by}`\n"
 
     kb = get_admin_order_detail_keyboard(order, payment)
-    await callback.message.edit_text(text, reply_markup=kb, parse_mode="Markdown")
+    try:
+        if callback.message.photo:
+            await callback.message.edit_caption(caption=text, reply_markup=kb, parse_mode="Markdown")
+        else:
+            await callback.message.edit_text(text, reply_markup=kb, parse_mode="Markdown")
+    except Exception:
+        if callback.message.photo:
+            await callback.message.edit_caption(caption=text, reply_markup=kb, parse_mode=None)
+        else:
+            await callback.message.edit_text(text, reply_markup=kb, parse_mode=None)
     await callback.answer()
 
 @router.callback_query(F.data.startswith("adm_ord_approve:"))
