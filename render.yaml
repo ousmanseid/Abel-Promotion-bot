@@ -1,0 +1,25 @@
+services:
+  - type: worker
+    name: abel-promotion-bot
+    env: python
+    region: frankfurt
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    disk:
+      name: abel-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: OWNER_ID
+        sync: false
+      - key: DATABASE_PATH
+        value: data/abel_promotion.db
+      - key: DEFAULT_LANGUAGE
+        value: en
